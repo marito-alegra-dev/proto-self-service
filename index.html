@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Service Alanube - Prototipo con Portal</title>
+  <style>
+    /* ===== DESIGN TOKENS ALANUBE ===== */
+    :root {
+      --primary-morado: #837FF3;
+      --dark-navy: #051737;
+      --gray-secondary: #47536B;
+      --white-bg: #F9F9F9;
+      --white: #ffffff;
+      --footer-light: #F0EFFE;
+      --text-primary: #051737;
+      --text-secondary: #47536B;
+      --border-color: #E5E7EB;
+      --success: #10B981;
+      --warning: #F97316;
+      --error: #E11D48;
+
+      --font-family: "Inter", "Roboto", sans-serif;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-family);
+      background-color: var(--white-bg);
+      color: var(--text-primary);
+    }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .prototype-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--white-bg);
+    }
+
+    .screens-wrapper {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      overflow-y: auto;
+      pointer-events: none;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+    }
+
+    /* ===== PANTALLA 0: FORMULARIO LANDING ===== */
+    .screen-landing {
+      background: linear-gradient(135deg, var(--dark-navy) 0%, #2D1B6E 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-xl);
+    }
+
+    .landing-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .landing-header {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .landing-logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary-morado);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .landing-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .landing-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-family: var(--font-family);
+      background: var(--white);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-morado);
+      box-shadow: 0 0 0 3px rgba(131, 127, 243, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+
+    /* ===== PANTALLA 1: CORREO ACTIVACIÓN ===== */
+    .screen-email {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .email-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      max-width: 600px;
+      width: 100%;
+      box-shadow: var(--shadow-md);
+      border-top: 4px solid var(--primary-morado);
+    }
+
+    .email-header {
+      color: var(--dark-navy);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .email-content {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .email-button-preview {
+      background: var(--primary-morado);
+      color: var(--white);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      text-align: center;
+      display: inline-block;
+      font-weight: 500;
+      margin: var(--spacing-lg) 0;
+    }
+
+    /* ===== PANTALLA 2: ACTIVACIÓN CUENTA ===== */
+    .screen-activate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .activate-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      max-width: 450px;
+      width: 100%;
+      box-shadow: var(--shadow-md);
+    }
+
+    .activate-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .activate-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    /* ===== PANTALLA 3: PLANES ===== */
+    .screen-plans {
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .plans-header {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .plans-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .plans-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .plan-card {
+      background: var(--white);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .plan-card:hover {
+      border-color: var(--primary-morado);
+      box-shadow: 0 10px 25px -5px rgba(131, 127, 243, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .plan-card.selected {
+      border-color: var(--primary-morado);
+      background: rgba(131, 127, 243, 0.02);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: var(--primary-morado);
+      color: var(--white);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .plan-docs {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary-morado);
+      margin-bottom: 4px;
+    }
+
+    .plan-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .plan-price {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .plan-price-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .plan-features {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    /* ===== PANTALLA 4: CHECKOUT ===== */
+    .screen-checkout {
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .checkout-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-xl);
+      max-width: 1000px;
+    }
+
+    .checkout-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xl);
+      grid-column: 1 / -1;
+    }
+
+    .checkout-section {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .summary-total {
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--primary-morado);
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 2px solid var(--primary-morado);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+    }
+
+    .checkbox-group input {
+      margin-top: 4px;
+    }
+
+    .checkbox-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* ===== PANTALLA 5: DASHBOARD ===== */
+    .screen-dashboard {
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .dashboard-header {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .dashboard-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .dashboard-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .card-status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .consumption-bar {
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: var(--spacing-md) 0;
+    }
+
+    .consumption-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--success), var(--warning));
+      width: 65%;
+    }
+
+    .consumption-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--white-bg);
+      border-radius: var(--radius-md);
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .switch.active {
+      background: var(--primary-morado);
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: var(--white);
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s;
+    }
+
+    .switch.active::after {
+      left: 22px;
+    }
+
+    /* ===== PANTALLA 6: RECARGA ===== */
+    .screen-recharge {
+      padding: var(--spacing-xl);
+      background: var(--white-bg);
+    }
+
+    .recharge-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .alert {
+      background: rgba(249, 115, 22, 0.1);
+      border-left: 4px solid var(--warning);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-xl);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .recharge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-family);
+    }
+
+    .btn-primary {
+      background: var(--primary-morado);
+      color: var(--white);
+      width: 100%;
+      margin-top: var(--spacing-md);
+    }
+
+    .btn-primary:hover {
+      background: #7269E0;
+      box-shadow: 0 4px 12px rgba(131, 127, 243, 0.3);
+    }
+
+    .btn-primary:active {
+      background: #6D5DB3;
+    }
+
+    .btn-secondary {
+      background: var(--white-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border-color);
+    }
+
+    .btn-small {
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 13px;
+    }
+
+    /* ===== NAVEGACIÓN ===== */
+    .nav-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-color);
+      padding: var(--spacing-md) var(--spacing-lg);
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--white-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-family);
+      color: var(--text-secondary);
+    }
+
+    .nav-btn:hover {
+      background: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .nav-btn.active {
+      background: var(--primary-morado);
+      color: var(--white);
+      border-color: var(--primary-morado);
+    }
+
+    /* ===== PORTAL SHELL (esquema del portal como contenedor de 3-6) ===== */
+    .screen-portal {
+      background: #dbe2fd;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .screen-portal.active {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .portal-app {
+      width: 100%;
+      max-width: 1360px;
+      min-height: 780px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      overflow: hidden;
+    }
+
+    .portal-sidebar {
+      width: 224px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 12px;
+    }
+
+    .portal-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      margin-bottom: 32px;
+    }
+
+    .portal-brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 9999px;
+      background: #6562ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(129, 140, 248, 0.6);
+    }
+
+    .portal-brand-logo svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .portal-brand-name {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: #334155;
+    }
+
+    .portal-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .portal-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #475569;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .portal-nav-item:hover {
+      background: #f8fafc;
+    }
+
+    .portal-nav-item.active {
+      background: #f2efff;
+      color: #6354ea;
+      font-weight: 500;
+      border-radius: 0 9999px 9999px 0;
+    }
+
+    .portal-nav-item svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .portal-nav-icon-doc {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid #8574f1;
+      border-radius: 4px;
+      padding: 2px;
+    }
+
+    .portal-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fafafc;
+    }
+
+    .portal-topbar {
+      height: 64px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-bottom: 1px solid #f1f5f9;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .portal-select {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 288px;
+      padding: 6px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #334155;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
+
+    .portal-select span {
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .portal-select svg {
+      width: 16px;
+      height: 16px;
+      fill: #94a3b8;
+    }
+
+    .portal-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .portal-help {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      border: 1px solid #818cf8;
+      color: #6366f1;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .portal-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 4px 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      background: #ffffff;
+    }
+
+    .portal-user-name {
+      font-size: 16px;
+      color: #1e293b;
+    }
+
+    .portal-user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: #5c68e2;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .portal-content {
+      flex: 1;
+      padding: 24px 32px;
+      overflow-y: auto;
+    }
+
+    .portal-view {
+      display: none;
+    }
+
+    .portal-view.active {
+      display: block;
+    }
+
+    /* Los wrappers de cada paso dejan de tener padding/fondo propios: el portal es el contenedor */
+    .portal-content .screen-plans,
+    .portal-content .screen-checkout,
+    .portal-content .screen-dashboard,
+    .portal-content .screen-recharge {
+      padding: 0;
+      background: transparent;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .recharge-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .portal-sidebar {
+        display: none;
+      }
+
+      .portal-content {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-container">
+    <div class="screens-wrapper">
+
+      <!-- PANTALLA 0: Formulario Landing -->
+      <div class="screen active" id="screen-0">
+        <div class="screen-landing">
+          <div class="landing-card">
+            <div class="landing-header">
+              <div class="landing-logo">☁️ Alanube</div>
+              <h1 class="landing-title">Solicitar Acceso</h1>
+              <p class="landing-subtitle">Empieza tu prueba gratuita en minutos</p>
+            </div>
+            <form id="landing-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Nombre *</label>
+                  <input type="text" class="form-input" placeholder="Juan" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Apellido *</label>
+                  <input type="text" class="form-input" placeholder="Pérez" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Empresa *</label>
+                <input type="text" class="form-input" placeholder="Nombre de tu empresa" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-input" placeholder="tu@email.com" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Teléfono *</label>
+                <input type="tel" class="form-input" placeholder="+1 (555) 123-4567" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">País *</label>
+                <select class="form-input" required>
+                  <option>Seleccionar país</option>
+                  <option selected>República Dominicana</option>
+                  <option>Colombia</option>
+                  <option>México</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="nextScreen(1)">Continuar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 1: Email de Activación -->
+      <div class="screen" id="screen-1">
+        <div class="screen-email">
+          <div class="email-card">
+            <div class="email-header">✉️ Revisa tu email</div>
+            <div class="email-content">
+              <p>Hemos enviado un enlace de activación a <strong>tu@email.com</strong></p>
+              <p style="margin-top: 16px;">El enlace expira en 48 horas. Haz clic en el botón de abajo para activar tu cuenta:</p>
+              <div class="email-button-preview">Activar mi cuenta</div>
+              <p style="margin-top: 16px; font-size: 12px;">Si no recibiste el email, revisa tu carpeta de spam o solicita un nuevo enlace.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="nextScreen(2)">Continuar (simulado)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 2: Activación de Cuenta -->
+      <div class="screen" id="screen-2">
+        <div class="screen-activate">
+          <div class="activate-card">
+            <h1 class="activate-title">Activa tu Cuenta</h1>
+            <p class="activate-subtitle">Crea una contraseña segura para acceder a tu portal</p>
+            <div class="form-group">
+              <label class="form-label">Contraseña *</label>
+              <input type="password" class="form-input" placeholder="Min. 8 caracteres" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar Contraseña *</label>
+              <input type="password" class="form-input" placeholder="Repite tu contraseña" required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="nextScreen(3)">Activar Cuenta</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTAL SHELL: contenedor de los pasos 3, 4, 5 y 6 -->
+      <div class="screen screen-portal" id="screen-portal">
+        <div class="portal-app">
+
+          <!-- BEGIN: LeftSidebar (esquema proto.html) -->
+          <aside class="portal-sidebar">
+            <div>
+              <div class="portal-brand">
+                <div class="portal-brand-logo">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"></path>
+                  </svg>
+                </div>
+                <span class="portal-brand-name">Alanube</span>
+              </div>
+              <nav class="portal-nav">
+                <a class="portal-nav-item" href="#">
+                  <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                  <span>Inicio</span>
+                </a>
+                <a class="portal-nav-item active" href="#">
+                  <div class="portal-nav-icon-doc">
+                    <span style="font-size:9px;font-weight:700;line-height:1;color:#6354ea;">x</span>
+                    <div style="width:10px;height:1.5px;background:#6354ea;border-radius:2px;"></div>
+                  </div>
+                  <span>Documentos</span>
+                </a>
+                <a class="portal-nav-item" href="#">
+                  <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                  <span>Mantenimiento</span>
+                </a>
+                <a class="portal-nav-item" href="#">
+                  <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                  <span>Documentación</span>
+                </a>
+              </nav>
+            </div>
+          </aside>
+          <!-- END: LeftSidebar -->
+
+          <!-- BEGIN: MainContentWrapper -->
+          <div class="portal-main">
+
+            <!-- BEGIN: TopBar -->
+            <header class="portal-topbar">
+              <div class="portal-select">
+                <span>Neo Invoice S.A.</span>
+                <svg viewBox="0 0 20 20"><path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+              </div>
+              <div class="portal-topbar-right">
+                <button class="portal-help" type="button" title="Ayuda">?</button>
+                <div class="portal-user">
+                  <span class="portal-user-name">Juan Pérez</span>
+                  <div class="portal-user-avatar">J</div>
+                </div>
+              </div>
+            </header>
+            <!-- END: TopBar -->
+
+            <!-- BEGIN: ContentBody -->
+            <main class="portal-content">
+
+              <!-- PASO 3: Planes -->
+              <div class="portal-view" id="view-3">
+                <div class="screen-plans">
+                  <div class="plans-header">
+                    <h1 class="plans-title">Elige tu Plan</h1>
+                    <p class="plans-subtitle">Selecciona el plan que mejor se adapte a tus necesidades</p>
+                  </div>
+                  <div class="plans-grid">
+                    <div class="plan-card" onclick="selectPlan(this, 3)">
+                      <div class="plan-name">Starter</div>
+                      <div class="plan-docs">100</div>
+                      <div class="plan-label">documentos/mes</div>
+                      <div class="plan-price">$9.99</div>
+                      <div class="plan-price-label">USD por 12 meses</div>
+                      <div class="plan-features">✓ API Integration<br>✓ Soporte por email<br>✓ Dashboard básico</div>
+                    </div>
+
+                    <div class="plan-card selected" onclick="selectPlan(this, 3)">
+                      <div class="plan-badge">RECOMENDADO</div>
+                      <div class="plan-name">Professional</div>
+                      <div class="plan-docs">1,000</div>
+                      <div class="plan-label">documentos/mes</div>
+                      <div class="plan-price">$49.99</div>
+                      <div class="plan-price-label">USD por 12 meses</div>
+                      <div class="plan-features">✓ API Advanced<br>✓ Soporte prioritario<br>✓ Analytics avanzados<br>✓ Recompra automática</div>
+                    </div>
+
+                    <div class="plan-card" onclick="selectPlan(this, 3)">
+                      <div class="plan-name">Business</div>
+                      <div class="plan-docs">5,000</div>
+                      <div class="plan-label">documentos/mes</div>
+                      <div class="plan-price">$149.99</div>
+                      <div class="plan-price-label">USD por 12 meses</div>
+                      <div class="plan-features">✓ API Premium<br>✓ Soporte 24/7<br>✓ Reports personalizados<br>✓ SLA garantizado</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary" style="max-width: 300px;" onclick="nextScreen(4)">Continuar al Pago</button>
+                </div>
+              </div>
+
+              <!-- PASO 4: Checkout -->
+              <div class="portal-view" id="view-4">
+                <div class="screen-checkout">
+                  <h1 class="checkout-title">Confirmar Compra</h1>
+
+                  <div class="checkout-container">
+                    <div class="checkout-section">
+                      <h2 class="section-title">📋 Resumen del Plan</h2>
+                      <div class="summary-item">
+                        <span>Plan Professional</span>
+                        <strong>$49.99</strong>
+                      </div>
+                      <div class="summary-item">
+                        <span>Impuestos (estimado)</span>
+                        <strong>$3.50</strong>
+                      </div>
+                      <div class="summary-total">
+                        <div style="display: flex; justify-content: space-between;">
+                          <span>Total</span>
+                          <strong>$53.49</strong>
+                        </div>
+                      </div>
+                      <div style="font-size: 12px; color: var(--text-secondary); margin-top: var(--spacing-md);">
+                        Vigencia: 12 meses o hasta agotar los 1,000 documentos
+                      </div>
+                    </div>
+
+                    <div class="checkout-section">
+                      <h2 class="section-title">💳 Datos de Pago</h2>
+                      <div class="form-group">
+                        <label class="form-label">Nombre Completo *</label>
+                        <input type="text" class="form-input" placeholder="Juan Pérez" required>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Número de Tarjeta *</label>
+                        <input type="text" class="form-input" placeholder="•••• •••• •••• 4242" required>
+                      </div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                          <label class="form-label">Vencimiento *</label>
+                          <input type="text" class="form-input" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">CVV *</label>
+                          <input type="text" class="form-input" placeholder="•••" required>
+                        </div>
+                      </div>
+                      <div class="checkbox-group">
+                        <input type="checkbox" id="tyc" required>
+                        <label for="tyc" class="checkbox-label">Acepto los Términos y Condiciones de Alanube</label>
+                      </div>
+                      <button type="button" class="btn btn-primary" onclick="nextScreen(5)">Pagar Ahora</button>
+                      <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: var(--spacing-md);">Transacción segura. Tu tarjeta no será guardada sin consentimiento.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PASO 5: Dashboard -->
+              <div class="portal-view" id="view-5">
+                <div class="screen-dashboard">
+                  <div class="dashboard-header">
+                    <h1 class="dashboard-title">Tu Consumo Alanube</h1>
+                  </div>
+
+                  <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                      <div class="card-status">Plan Activo</div>
+                      <div class="card-title">Professional</div>
+                      <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-md);">1,000 documentos/mes</div>
+                      <div style="font-size: 13px; color: var(--text-secondary);">Renovación: 23 de septiembre, 2027</div>
+                      <button class="btn btn-secondary btn-small" style="margin-top: var(--spacing-md); width: 100%;">Cambiar Plan</button>
+                    </div>
+
+                    <div class="dashboard-card">
+                      <div class="card-status">Consumo Actual</div>
+                      <div class="card-title">650 / 1,000</div>
+                      <div class="consumption-bar">
+                        <div class="consumption-fill"></div>
+                      </div>
+                      <div class="consumption-text">65% consumido • 12 días estimados</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                      <div class="section-title">⚡ Recompra Automática</div>
+                      <div class="toggle-switch">
+                        <div class="switch active"></div>
+                        <div>
+                          <div style="font-size: 14px; font-weight: 500;">Activado</div>
+                          <div style="font-size: 12px; color: var(--text-secondary);">Al alcanzar 100%</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary" style="max-width: 300px; margin-top: var(--spacing-lg);" onclick="nextScreen(6)">Recargar Paquete</button>
+                </div>
+              </div>
+
+              <!-- PASO 6: Recarga -->
+              <div class="portal-view" id="view-6">
+                <div class="screen-recharge">
+                  <h1 class="recharge-title">Recargar Paquete</h1>
+
+                  <div class="alert">
+                    <strong>⚠️ Plan Agotado:</strong> Has consumido el 100% de tu plan. Recarga para continuar emitiendo documentos.
+                  </div>
+
+                  <h2 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-lg);">Selecciona tu Recarga</h2>
+
+                  <div class="recharge-grid">
+                    <div class="plan-card selected" onclick="selectPlan(this, 6)">
+                      <div class="plan-name">Professional</div>
+                      <div class="plan-docs">+1,000</div>
+                      <div class="plan-label">documentos adicionales</div>
+                      <div class="plan-price">$49.99</div>
+                      <div class="plan-price-label">USD (vigencia: 12 meses)</div>
+                    </div>
+
+                    <div class="plan-card" onclick="selectPlan(this, 6)">
+                      <div class="plan-name">Business</div>
+                      <div class="plan-docs">+5,000</div>
+                      <div class="plan-label">documentos adicionales</div>
+                      <div class="plan-price">$149.99</div>
+                      <div class="plan-price-label">USD (vigencia: 12 meses)</div>
+                    </div>
+                  </div>
+
+                  <h2 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xl);">Método de Pago</h2>
+
+                  <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--white-bg); border-radius: var(--radius-md); border: 1px solid var(--primary-morado); cursor: pointer;">
+                      <input type="radio" name="payment" checked>
+                      <span>
+                        <strong>Tarjeta Visa terminada en 4242</strong><br>
+                        <span style="font-size: 12px; color: var(--text-secondary);">Guardada como método default</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <button type="button" class="btn btn-primary" style="max-width: 300px; margin-top: var(--spacing-lg);" onclick="alert('✅ Recarga completada. Tu nuevo límite es 2,000 documentos.')">Confirmar Recarga</button>
+                </div>
+              </div>
+
+            </main>
+            <!-- END: ContentBody -->
+          </div>
+          <!-- END: MainContentWrapper -->
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Barra de navegación -->
+    <div class="nav-bar">
+      <button class="nav-btn active" data-screen="0" onclick="goToScreen(0)">0. Landing</button>
+      <button class="nav-btn" data-screen="1" onclick="goToScreen(1)">1. Email</button>
+      <button class="nav-btn" data-screen="2" onclick="goToScreen(2)">2. Activar</button>
+      <button class="nav-btn" data-screen="3" onclick="goToScreen(3)">3. Planes</button>
+      <button class="nav-btn" data-screen="4" onclick="goToScreen(4)">4. Checkout</button>
+      <button class="nav-btn" data-screen="5" onclick="goToScreen(5)">5. Dashboard</button>
+      <button class="nav-btn" data-screen="6" onclick="goToScreen(6)">6. Recarga</button>
+    </div>
+  </div>
+
+  <script>
+    function nextScreen(screenNum) {
+      goToScreen(screenNum);
+      window.scrollTo(0, 0);
+    }
+
+    function goToScreen(screenNum) {
+      // Ocultar todas las pantallas y vistas del portal
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.portal-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      if (screenNum <= 2) {
+        // Pasos previos al portal (Landing, Email, Activación)
+        document.getElementById('screen-' + screenNum).classList.add('active');
+      } else {
+        // Pasos 3 a 6 dentro del portal
+        document.getElementById('screen-portal').classList.add('active');
+        document.getElementById('view-' + screenNum).classList.add('active');
+      }
+
+      const btn = document.querySelector('.nav-btn[data-screen="' + screenNum + '"]');
+      if (btn) btn.classList.add('active');
+    }
+
+    function selectPlan(element, screenNum) {
+      const root = document.getElementById('view-' + screenNum);
+      root.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      element.classList.add('selected');
+    }
+  </script>
+</body>
+</html>
